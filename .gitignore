@@ -1,1 +1,5 @@
-tutorial/Lib/*
+*Lib/*
+*__pycache__/*
+Include/*
+*migrations/*
+
