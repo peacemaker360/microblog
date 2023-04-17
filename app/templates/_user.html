@@ -1,0 +1,21 @@
+<!-- app/templates/_user.html -->
+<table class="table table-hover">
+    <tr>
+        <td width="70px">
+            <a href="{{ url_for('user', username=user.username) }}">
+                {{ user.username }}
+            </a>
+
+        </td>
+        <td>
+            <p>{{ user.email }}</p>
+        </td>
+
+        {% if current_user.username == "admin" %}
+        <td>
+            <a href="{{ url_for('resetpassword', email=user.email) }}" class="btn btn-info" role="button">
+                <span class="glyphicon glyphicon-transfer"></span> Button</a>
+        </td>
+        {% endif %}
+    </tr>
+</table>

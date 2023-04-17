@@ -1,4 +1,5 @@
 # tutorial/.flaskenv
 FLASK_APP=microblog.py
-FLASK_ENV=development
+#LASK_ENV=development
+FLASK_DEBUG=1
 DATABASE_URL='mysql+pymysql://microblog:microblog@localhost/microblog'

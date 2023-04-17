@@ -6,4 +6,9 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'app.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    POSTS_PER_PAGE = 3
+    # Provisorisch, für Test mit flask shell
+    SERVER_NAME = 'localhost:5000'
+    # SERVER_NAME kann später wieder entfernt werden
+
+    POSTS_PER_PAGE = 5
+    USERS_PER_PAGE = 10

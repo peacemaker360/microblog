@@ -22,7 +22,7 @@ def index():
         post = Post(body=form.post.data, author=current_user)
         db.session.add(post)
         db.session.commit()
-        flash('Your post is now live!')
+        flash('Your post is now live!', 'success')
         return redirect(url_for('index'))
     page = request.args.get('page', 1, type=int)
     posts = current_user.followed_posts().paginate(
@@ -39,8 +39,21 @@ def index():
 @login_required
 def explore():
     page = request.args.get('page', 1, type=int)
-    posts = Post.query.order_by(Post.timestamp.desc()).paginate(
-        page=page, per_page=app.config['POSTS_PER_PAGE'], error_out=False)
+    query = request.args.get('search', None, type=str)
+    search = "%{}%".format(query)
+    if query:
+        if len(query) < 3:
+            flash('please provide more than 3 search characters', 'info')
+            return redirect(url_for('explore'))
+        else:
+            posts = Post.query.filter(Post.body.like(search)).order_by(Post.timestamp.desc()).paginate(
+                page=page, 
+                per_page=app.config['POSTS_PER_PAGE'], 
+                error_out=False
+            )
+    else:
+        posts = Post.query.order_by(Post.timestamp.desc()).paginate(
+            page=page, per_page=app.config['POSTS_PER_PAGE'], error_out=False)
     next_url = url_for('explore', page=posts.next_num) \
         if posts.has_next else None
     prev_url = url_for('explore', page=posts.prev_num) \
@@ -68,6 +81,36 @@ def user(username):
                            user=user,
                            posts=posts,
                            form=form)
+
+@app.route('/users')
+@login_required
+def users():
+    page = request.args.get('page', 1, type=int)
+    query = request.args.get('search', None, type=str)
+    search = "%{}%".format(query)
+    if query:
+        if len(query) < 3:
+            flash('please provide more than 3 search characters', 'info')
+            return redirect(url_for('users'))
+        else:
+            users = User.query.filter(User.username.like(search)).order_by(User.id.asc()).paginate(
+                page=page, 
+                per_page=app.config['USERS_PER_PAGE'], 
+                error_out=False
+            )
+    else:
+        users = User.query.order_by(User.id.asc()).paginate(
+            page=page, 
+            per_page=app.config['USERS_PER_PAGE'], 
+            error_out=False
+        )
+    next_url = url_for('users', page=users.next_num) \
+        if users.has_next else None
+    prev_url = url_for('users', page=users.prev_num) \
+        if users.has_prev else None
+    return render_template('users.html', title='Users', users=users.items,
+                           next_url=next_url, prev_url=prev_url)
+
 
 @app.route('/login', methods=['GET','POST'])
 def login():
@@ -103,7 +146,7 @@ def register():
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
-        flash('Congratulations, you are now a registered user!')
+        flash('Congratulations, you are now a registered user!', 'success')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
@@ -116,14 +159,14 @@ def edit_profile():
             current_user.username = form.username.data
             current_user.about_me = form.about_me.data
             db.session.commit()
-            flash('Your profile has been updated!')
+            flash('Your profile has been updated!', 'success')
             return redirect(url_for('user', username=current_user.username))
         elif request.method == 'GET':
             form.username.data = current_user.username
             form.about_me.data = current_user.about_me
         return render_template('edit_profile.html', title='Edit profile', form=form)
     else:
-        flash('The admin profile may not be edited!')
+        flash('The admin profile may not be edited!', 'info')
         return redirect(url_for('user', username=current_user.username))
     
    
@@ -141,7 +184,7 @@ def follow(username):
             return redirect(url_for('user', username=username))
         current_user.follow(user)
         db.session.commit()
-        flash('You are now following {}!'.format(username))
+        flash('You are now following {}!'.format(username), 'success')
         return redirect(url_for('user', username=username))
     else:
         return redirect(url_for('index'))
@@ -161,7 +204,7 @@ def unfollow(username):
             return redirect(url_for('user', username=username))
         current_user.unfollow(user)
         db.session.commit()
-        flash('You are no longer following {}.'.format(username))
+        flash('You are no longer following {}.'.format(username), 'info')
         return redirect(url_for('user', username=username))
     else:
         return redirect(url_for('index'))
@@ -178,15 +221,19 @@ def resetpassword():
         form = ResetPasswordForm()
         if form.validate_on_submit():
             user = User.query.filter_by(email=form.email.data).first()
-            if user is not None:
+            if user is None:
                 flash('User not found.')
+                return render_template('reset.html', title='Reset password', form=form)
             user.set_password(form.password.data)
             db.session.commit()
-            flash('Password reset!')
+            flash('Password reset!', 'success')
             return redirect(url_for('login'))
+        elif request.method == 'GET' and request.args.get('email', None, type=str) is not None:
+            form.email.data = request.args.get('email', None, type=str)
+            return render_template('reset.html', title='Reset password', form=form)
         return render_template('reset.html', title='Reset password', form=form)
     else:
-        return "Admin required", 401
+        return "Admin required", 403
 
 @app.route('/user_info', methods=['GET','POST'])
 #@login_required
@@ -196,5 +243,5 @@ def user_info():
                 "data": current_user.to_json()}
     else:
         resp = {"result": 401,
-                "data": {"message": "user no login"}}
+                "data": {"message": "user not login"}}
     return jsonify(**resp)

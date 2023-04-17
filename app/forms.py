@@ -53,10 +53,10 @@ class ResetPasswordForm(FlaskForm):
         user = User.query.filter_by(email=email.data).first()
         if user is None:
             raise ValidationError('No user found.')
-        
-class EmptyForm(FlaskForm):
-    submit = SubmitField('Submit')
 
 class PostForm(FlaskForm):
     post = TextAreaField('Your post:', validators=[DataRequired()])
     submit = SubmitField('Post')
+
+class EmptyForm(FlaskForm):
+    submit = SubmitField('Submit')
