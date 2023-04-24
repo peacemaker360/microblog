@@ -6,6 +6,7 @@ from flask import url_for
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from hashlib import md5
+from time import time
 import base64
 import jwt
 import os
