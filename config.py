@@ -13,3 +13,5 @@ class Config(object):
 
     POSTS_PER_PAGE = 5
     USERS_PER_PAGE = 10
+
+    ADMIN = ["admin@lab2.ifalabs.org"]
