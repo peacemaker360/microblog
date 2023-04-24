@@ -7,7 +7,8 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Provisorisch, für Test mit flask shell
-    SERVER_NAME = 'localhost:5000'
+    if os.environ.get('SERVER_TYPE') != 'gunicorn':
+        SERVER_NAME = 'localhost:5000'
     # SERVER_NAME kann später wieder entfernt werden
 
     POSTS_PER_PAGE = 5
