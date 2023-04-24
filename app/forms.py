@@ -2,6 +2,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField,PasswordField,BooleanField,SubmitField,TextAreaField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length
 from app.models import User
+from wtforms_sqlalchemy.fields import QuerySelectField
+
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -41,6 +43,11 @@ class EditProfileForm(FlaskForm):
             user = User.query.filter_by(username=self.username.data).first()
             if user is not None:
                 raise ValidationError('Username in use. Please choose a different username or keep your existing.')
+            
+class DeleteProfileForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    confirm = BooleanField('Confirm', validators=[DataRequired()])
+    submit = SubmitField('Delete')
     
 class ResetPasswordForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
@@ -59,4 +66,9 @@ class PostForm(FlaskForm):
     submit = SubmitField('Post')
 
 class EmptyForm(FlaskForm):
+    submit = SubmitField('Submit')
+
+class QuerySelectDemoForm(FlaskForm):
+    users = QuerySelectField(allow_blank = True, get_label = 'email', 
+    validators = [DataRequired()])
     submit = SubmitField('Submit')

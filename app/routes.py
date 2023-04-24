@@ -1,11 +1,13 @@
 # app/routes.py
 from flask import flash, jsonify, redirect, render_template, url_for, request
 from app import app, db
-from app.forms import LoginForm, RegisterForm, ResetPasswordForm, EditProfileForm, EmptyForm, PostForm
+from app.forms import LoginForm, RegisterForm, ResetPasswordForm, EditProfileForm,DeleteProfileForm, EmptyForm, PostForm
 from app.models import User, Post
 from flask_login import login_user, current_user, logout_user, login_required
 from werkzeug.urls import url_parse
 from datetime import datetime
+from app.forms import QuerySelectDemoForm
+
 
 @app.before_request
 def before_request():
@@ -168,7 +170,26 @@ def edit_profile():
     else:
         flash('The admin profile may not be edited!', 'info')
         return redirect(url_for('user', username=current_user.username))
-    
+
+@app.route('/profile/delete/', methods=['GET','POST'])
+@app.route('/profile/delete/<username>', methods=['GET','POST'])
+@login_required
+def delete_profile(username):
+    if current_user.id != 1:
+        flash('Only admin can delete profiles', 'error')
+    if username is None:
+        username = request.args.get('username', None, type=str)
+    form = DeleteProfileForm(username)
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        db.session.commit()
+        flash('Profile has been deleted!', 'success')
+        return redirect(url_for('user', username=current_user.username))
+    elif request.method == 'GET':
+        form.username.data = username
+    return render_template('delete_profile.html', title='Delete profile', form=form)
+ 
+
    
 @app.route('/follow/<username>', methods=['POST'])
 @login_required
@@ -245,3 +266,15 @@ def user_info():
         resp = {"result": 401,
                 "data": {"message": "user not login"}}
     return jsonify(**resp)
+
+
+
+@app.route('/query_select_demo', methods=['GET','POST'])
+def query_select_demo():
+    form = QuerySelectDemoForm()
+    form.users.query = db.session.query(User)
+    if form.validate_on_submit() == True :
+        user_id = int(form.users.data.id)
+        return '<html><h3>Auswahl: User {}</h3></html>'.format(user_id)
+    else:
+        return render_template('query_select_demo.html', title='Select DB', form=form)

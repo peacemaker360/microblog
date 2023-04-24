@@ -175,6 +175,11 @@ class Post(db.Model):
         }
         return data
     
+    def to_json(self):        
+        return {"id": self.id,
+            "body": self.body,
+            "timestamp": self.timestamp}
+    
     @staticmethod
     def to_collection():
         resources = Post.query.all()

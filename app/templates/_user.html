@@ -1,7 +1,7 @@
 <!-- app/templates/_user.html -->
-<table class="table table-hover">
+<table class="table table-hover" style="margin-bottom: 0;">
     <tr>
-        <td width="70px">
+        <td width="100px">
             <a href="{{ url_for('user', username=user.username) }}">
                 {{ user.username }}
             </a>
@@ -12,9 +12,9 @@
         </td>
 
         {% if current_user.username == "admin" %}
-        <td>
+        <td style="text-align: right">
             <a href="{{ url_for('resetpassword', email=user.email) }}" class="btn btn-info" role="button">
-                <span class="glyphicon glyphicon-transfer"></span> Button</a>
+                <span class="glyphicon glyphicon-transfer"></span> Edit</a>
         </td>
         {% endif %}
     </tr>

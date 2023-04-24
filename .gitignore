@@ -3,3 +3,8 @@ __pycache__/
 Include/*
 *migrations/
 
+**/__pycache__
+app.db
+logs
+.env
+tutorial # Ihr Unterverzeichnis für das virtuelle Environment
