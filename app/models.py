@@ -1,7 +1,7 @@
 # app/models.py
 
 from datetime import datetime, timedelta
-from app import db, login
+from app import app, db, login
 from flask import url_for
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
